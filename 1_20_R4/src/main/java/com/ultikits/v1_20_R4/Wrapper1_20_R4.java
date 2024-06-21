@@ -4,11 +4,8 @@ import com.ultikits.ultitools.entities.Colors;
 import com.ultikits.ultitools.entities.Sounds;
 import com.ultikits.ultitools.interfaces.VersionWrapper;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.minecraft.network.chat.IChatBaseComponent;
-import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
-import net.minecraft.network.protocol.game.PacketPlayOutPlayerListHeaderFooter;
+import net.md_5.bungee.api.chat.TextComponent;
+
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
@@ -16,7 +13,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -169,7 +165,8 @@ public class Wrapper1_20_R4 implements VersionWrapper {
     }
 
     public int getItemDurability(ItemStack itemStack) {
-        return itemStack.getType().getMaxDurability() - ((Damageable) Objects.requireNonNull(itemStack.getItemMeta())).getDamage();
+        return itemStack.getType().getMaxDurability()
+                - ((Damageable) Objects.requireNonNull(itemStack.getItemMeta())).getDamage();
     }
 
     public ItemStack getItemInHand(Player player, boolean isMainHand) {
@@ -181,22 +178,11 @@ public class Wrapper1_20_R4 implements VersionWrapper {
     }
 
     public void sendActionBar(Player player, String message) {
-        try {
-            IChatBaseComponent iChatBaseComponent = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + message + "\"}");
-            ClientboundSystemChatPacket packetPlayOutChat = new ClientboundSystemChatPacket(iChatBaseComponent, true);
-            ((CraftPlayer) player).getHandle().c.a(packetPlayOutChat);
-        } catch (Exception e) {
-            //Spigot 下解决 No Such Method Error
-            BaseComponent[] baseComponents = new ComponentBuilder(message).create();
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, baseComponents);
-        }
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
     }
 
     public void sendPlayerList(Player player, String header, String footer) {
-        IChatBaseComponent tabHeader = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + header + "\"}");
-        IChatBaseComponent tabFooter = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + footer + "\"}");
-        PacketPlayOutPlayerListHeaderFooter tabPacket = new PacketPlayOutPlayerListHeaderFooter(tabHeader, tabFooter);
-        ((CraftPlayer) player).getHandle().c.a(tabPacket);
+        player.setPlayerListHeaderFooter(header, footer);
     }
 
     @Override
